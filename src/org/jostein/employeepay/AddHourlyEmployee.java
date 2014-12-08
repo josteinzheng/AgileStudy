@@ -1,7 +1,7 @@
 package org.jostein.employeepay;
 
 
-public class AddHourlyEmployee implements Transaction {
+public class AddHourlyEmployee extends AddEmployeeTransaction {
 
     private int employeeId;
     private String name;
@@ -9,18 +9,18 @@ public class AddHourlyEmployee implements Transaction {
     private double hourlyRate;
 
     public AddHourlyEmployee(int employeeId, String name, String address, double hourlyRate) {
-        this.employeeId = employeeId;
-        this.name = name;
-        this.address = address;
+        super(employeeId, name, address);
         this.hourlyRate = hourlyRate;
     }
 
     @Override
-    public void execute() {
-        Employee e = new Employee(employeeId, name, address);
-        HourlyClassification hp = new HourlyClassification(hourlyRate);
-        e.setClassification(hp);
-        PayrollDatabase.addEmployee(employeeId, e);
+    protected PaymentSchedule getSchedule() {
+        return new DailySchedule();
+    }
+
+    @Override
+    protected PaymentClassification getClassification() {
+        return new HourlyClassification(hourlyRate);
     }
 
 }

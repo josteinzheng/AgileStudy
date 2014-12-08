@@ -1,5 +1,10 @@
 package org.jostein.employeepay;
 
+import org.jostein.employeepay.test.Affiliation;
+import org.jostein.employeepay.test.UnionAffiliation;
+
+import java.util.List;
+
 public class Employee {
 
     private PaymentClassification mClassification;
@@ -41,6 +46,15 @@ public class Employee {
 
     public PaymentMethod getMethod() {
         return mMethod;
+    }
+
+    private Affiliation mAffiliation = Affiliation.NOAffiliation;
+    public Affiliation getAffiliation() {
+        return mAffiliation;
+    }
+
+    public void setAffiliation(UnionAffiliation affiliation) {
+        mAffiliation = affiliation;
     }
 
 }

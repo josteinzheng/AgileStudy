@@ -5,6 +5,7 @@ import junit.framework.TestCase;
 
 import org.jostein.employeepay.AddHourlyEmployee;
 import org.jostein.employeepay.AddSalariedEmployee;
+import org.jostein.employeepay.CommissionedClassification;
 import org.jostein.employeepay.DeleteEmployeeTransaction;
 import org.jostein.employeepay.Employee;
 import org.jostein.employeepay.HoldMethod;
@@ -15,6 +16,7 @@ import org.jostein.employeepay.PaymentMethod;
 import org.jostein.employeepay.PaymentSchedule;
 import org.jostein.employeepay.PayrollDatabase;
 import org.jostein.employeepay.SalariedClassification;
+import org.jostein.employeepay.SalesReceiptTransaction;
 import org.jostein.employeepay.TimeCard;
 import org.jostein.employeepay.TimeCardTransaction;
 import org.junit.After;
@@ -87,5 +89,44 @@ public class PayrollTest extends TestCase {
         TimeCard tc = hc.getTimeCard(date);
         assertNotNull(tc);
         assertEquals(8, tc.getHours());
+    }
+
+    public void testSalesReceiptTransaction() {
+        int employeeId = 2;
+        AddCommissionedEmployee t = new AddCommissionedEmployee(employeeId, "Jostein", "Haidian");
+        t.execute();
+
+        Employee e = PayrollDatabase.getEmployee(employeeId);
+        assertNotNull(e);
+
+        long date = 234;
+        double amount = 20000;
+        SalesReceiptTransaction srt = new SalesReceiptTransaction(employeeId, date, amount);
+        srt.execute();
+
+        PaymentClassification pc = e.getClassification();
+        CommissionedClassification cc = (CommissionedClassification) pc;
+        assertEquals(20000, cc.getTotalAmount(), 0);
+    }
+
+    public void testServiceChargeTransaction() {
+        int employeeId = 3;
+        AddSalariedEmployee t = new AddSalariedEmployee(employeeId, "Jostein", "ChangPing", 30000);
+        t.execute();
+
+        Employee e = PayrollDatabase.getEmployee(employeeId);
+        assertNotNull(e);
+        int memberId = 86;
+        PayrollDatabase.addUnionMember(memberId, employeeId);
+        UnionAffiliation affiliation = new UnionAffiliation(memberId, 12.5);
+        e.setAffiliation(affiliation);
+
+        long date = 20111101;
+        double money = 12.95;
+        ServiceChargeTransaction sct = new ServiceChargeTransaction(memberId, date, money);
+        sct.execute();
+
+        ServiceCharge sc = affiliation.getServiceCharge(date);
+        assertEquals(money, sc.getAmount(), 0);
     }
 }
